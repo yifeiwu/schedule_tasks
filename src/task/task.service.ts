@@ -7,23 +7,29 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TaskService {
   constructor(private prisma: PrismaService) {}
 
-  // Helper function to check if a Schedule exists
-  private async checkScheduleExists(schedule_id: string): Promise<boolean> {
+  private async checkScheduleExists(schedule_id: string): Promise<void> {
     const schedule = await this.prisma.schedule.findUnique({
       where: { id: schedule_id },
     });
-    return !!schedule; // Returns true if schedule exists, false otherwise
+    if (!schedule) {
+      throw new NotFoundException(
+        `Schedule with ID ${schedule_id} not found`
+      );
+    }
+  }
+
+  private async checkTaskExists(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return task;
   }
 
   async create(createTaskDto: CreateTaskDto) {
-    const scheduleExists = await this.checkScheduleExists(
-      createTaskDto.schedule_id,
-    );
-    if (!scheduleExists) {
-      throw new NotFoundException(
-        `Schedule with ID ${createTaskDto.schedule_id} not found`,
-      );
-    }
+    await this.checkScheduleExists(createTaskDto.schedule_id);
 
     return this.prisma.task.create({
       data: createTaskDto,
@@ -35,21 +41,15 @@ export class TaskService {
   }
 
   async findOne(id: string) {
-    return this.prisma.task.findUnique({
-      where: { id },
-    });
+    const task = await this.checkTaskExists(id);
+    return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto) {
+    await this.checkTaskExists(id);
+
     if (updateTaskDto.schedule_id) {
-      const scheduleExists = await this.checkScheduleExists(
-        updateTaskDto.schedule_id,
-      );
-      if (!scheduleExists) {
-        throw new NotFoundException(
-          `Schedule with ID ${updateTaskDto.schedule_id} not found`,
-        );
-      }
+      await this.checkScheduleExists(updateTaskDto.schedule_id);
     }
 
     return this.prisma.task.update({
@@ -59,13 +59,22 @@ export class TaskService {
   }
 
   async remove(id: string) {
-    const task = await this.prisma.task.findUnique({ where: { id } });
+    await this.checkTaskExists(id);
 
-    if (!task) {
-      throw new NotFoundException(`Task with ID ${id} not found`);
-    }
-    await this.prisma.task.delete({ where: { id } });
+    await this.prisma.task.delete({
+      where: { id },
+    });
 
-    return { message: `Task with ID ${id} deleted successfully` };
+    return {
+      message: `Task with ID ${id} deleted successfully`,
+    };
+  }
+
+  async findBySchedule(schedule_id: string) {
+    await this.checkScheduleExists(schedule_id);
+
+    return this.prisma.task.findMany({
+      where: { schedule_id },
+    });
   }
 }
