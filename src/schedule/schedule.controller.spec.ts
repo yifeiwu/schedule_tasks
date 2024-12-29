@@ -35,8 +35,8 @@ describe('ScheduleController', () => {
     const createDto = {
       account_id: 1,
       agent_id: 1,
-      start_time: '2024-12-02',
-      end_time: '2025-12-02',
+      start_time: new Date('2024-12-29T10:00:00Z'),
+      end_time: new Date('2025-12-29T10:00:00Z'),
     };
 
     it('should create a new schedule', async () => {
@@ -112,7 +112,7 @@ describe('ScheduleController', () => {
   describe('update', () => {
     const scheduleId = 'uuid-1234';
     const updateDto = {
-      start_time: '2023-12-01',
+      start_time: new Date('2024-12-29T10:00:00Z'),
     };
 
     it('should update a schedule and return the updated entity', async () => {
@@ -120,7 +120,7 @@ describe('ScheduleController', () => {
         id: scheduleId,
         account_id: 1,
         agent_id: 1,
-        start_time: new Date(updateDto.start_time),
+        start_time: updateDto.start_time,
         end_time: new Date('2024-12-02'),
       };
 

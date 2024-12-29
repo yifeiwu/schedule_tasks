@@ -1,4 +1,5 @@
-import { IsInt, IsNotEmpty, IsUUID, IsDateString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsUUID, IsDate } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateScheduleDto {
   @IsInt()
@@ -9,11 +10,13 @@ export class CreateScheduleDto {
   @IsNotEmpty()
   agent_id: number;
 
-  @IsDateString()
+  @IsDate()
   @IsNotEmpty()
-  start_time: string;
+  @Transform(({ value }) => new Date(value))
+  start_time: Date;
 
-  @IsDateString()
+  @IsDate()
   @IsNotEmpty()
-  end_time: string;
+  @Transform(({ value }) => new Date(value))
+  end_time: Date;
 }

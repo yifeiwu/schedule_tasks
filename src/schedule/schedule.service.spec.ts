@@ -24,14 +24,12 @@ describe('ScheduleService', () => {
       const createDto = {
         account_id: 1,
         agent_id: 1,
-        start_time: '2024-12-01',
-        end_time: '2025-12-01',
+        start_time: new Date('2024-12-29T10:00:00Z'),
+        end_time: new Date('2025-12-29T10:00:00Z'),
       };
       const expectedSchedule = {
         ...createDto,
         id: 'uuid-1234',
-        start_time: new Date(createDto.start_time),
-        end_time: new Date(createDto.end_time),
       };
 
       const { id: _, ...createScheduleParams } = expectedSchedule;
@@ -99,8 +97,8 @@ describe('ScheduleService', () => {
   describe('update', () => {
     it('should update a schedule with the provided fields', async () => {
       const updateDto = {
-        start_time: '2024-12-02',
-        end_time: '2025-12-02',
+        start_time: new Date('2024-12-29T10:00:00Z'),
+        end_time: new Date('2025-12-29T10:00:00Z'),
       };
 
       const scheduleId = 'uuid-1234';
